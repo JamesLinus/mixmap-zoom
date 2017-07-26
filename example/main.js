@@ -1,6 +1,7 @@
 var mixmap = require('mixmap')
 var regl = require('regl')
 var createMesh = require('earth-mesh')
+var zoomTo = require('../')
 
 var mix = mixmap(regl, { extensions: [ 'oes_element_index_uint' ] })
 var map = mix.create({ backgroundColor: [0.1,0.11,0.12,1] })
@@ -55,19 +56,6 @@ window.addEventListener('keydown', function (ev) {
   }
 })
 
-var css = require('sheetify')
-var style = css`
-  :host {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-    background-color: #101010;
-    overflow: hidden;
-  }
-`
-
 var app = require('choo')()
 var html = require('choo/html')
 
@@ -95,7 +83,11 @@ app.use(function (state, emitter) {
     catch (err) { return console.error(err) }
     state.files.push({ name: file.name, size: file.size, mesh: mesh })
     drawFeature.props = [mesh.triangle]
-    zoomTo(map, getBounds(mesh.triangle), 1000)
+    zoomTo(map, {
+      viewbox: getBounds(mesh.triangle),
+      duration: 1000,
+      padding: 0.2
+    })
     emitter.emit('render')
   })
   window.addEventListener('resize', function () {
@@ -104,49 +96,48 @@ app.use(function (state, emitter) {
 })
 
 app.route('/', function (state, emit) {
-  return html`<body>
-    ${mix.render()}
-    <div class="${style}">
+  var element = mix.render()
+  element.style.zIndex = 50
+  element.style.position = 'absolute'
+  return html`<body style="margin:0; overflow: hidden">
+    <style>
+      body {
+        font-family: monospace;
+      }
+      .overlay {
+        position: absolute;
+        top: 100px;
+        left: 40px;
+        right: 40px;
+        padding: 50px;
+        text-align: center;
+        background-color: black;
+        opacity: 0.7;
+        color: white;
+        z-index: 100;
+      }
+      .overlay a:link { color: #7f7fff; }
+      .overlay a:visited { color: #ff7fff; }
+      .overlay.hide {
+        display: none;
+      }
+    </style>
+    ${element}
+    <div class="overlay ${state.files.length === 0 ? 'show' : 'hide'}">
+      <p>
+        Drag and drop a geojson file.
+      </p>
+      <p>
+        Here's a file you can use:
+        <a href="mexico.json" download="mexico.json">mexico.json</a>
+      </p>
+    </div>
     <div class="map">
-        ${map.render({ width: window.innerWidth, height: window.innerHeight })}
-      </div>
+      ${map.render({ width: window.innerWidth, height: window.innerHeight })}
     </div>
   </body>`
 })
 app.mount('body')
-
-var ease = require('eases/linear')
-
-function zoomTo (map, box, time) {
-  var startbox = map.viewbox.slice()
-  var endbox = box.slice()
-  var wrap = Math.floor(((startbox[0]+startbox[2])*0.5+180)/360)*360
-  var aspect = (startbox[2]-startbox[0])/(startbox[3]-startbox[1])
-  endbox[0] += wrap
-  endbox[2] += wrap
-  if ((endbox[2] - endbox[0]) / (endbox[3] - endbox[1]) > aspect) {
-    endbox[1] = (endbox[3]+endbox[1])*0.5 - (endbox[3]-endbox[1])*aspect*0.5
-    endbox[3] = (endbox[3]+endbox[1])*0.5 + (endbox[3]-endbox[1])*aspect*0.5
-  } else {
-    endbox[0] = (endbox[2]+endbox[0])*0.5 - (endbox[2]-endbox[0]*aspect*0.5
-    endbox[2] = (endbox[2]+endbox[0])*0.5 + (endbox[2]-endbox[0])*aspect*0.5
-  }
-  var bbox = [0,0,0,0]
-  var start = Date.now()
-  window.requestAnimationFrame(function frame () {
-    var now = Date.now()
-    var t = (now - start) / time
-    if (now >= start + time) t = 1
-    var x = ease(t)
-    bbox[0] = startbox[0]*(1-x) + endbox[0]*x
-    bbox[1] = startbox[1]*(1-x) + endbox[1]*x
-    bbox[2] = startbox[2]*(1-x) + endbox[2]*x
-    bbox[3] = startbox[3]*(1-x) + endbox[3]*x
-    map.setViewbox(bbox)
-    map.draw()
-    if (t < 1) window.requestAnimationFrame(frame)
-  })
-}
 
 function getBounds (mesh) {
   var bbox = [Infinity,Infinity,-Infinity,-Infinity]
