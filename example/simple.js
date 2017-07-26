@@ -1,13 +1,6 @@
-# mixmap-zoom
-
-bounding-box zoom animations for mixmap
-
-# example
-
-``` js
 var mixmap = require('mixmap')
 var regl = require('regl')
-var zoomTo = require('mixmap-zoom')
+var zoomTo = require('../')
 
 var mix = mixmap(regl, { extensions: [ 'oes_element_index_uint' ] })
 var map = mix.create({ backgroundColor: [0.1,0.11,0.12,1] })
@@ -52,30 +45,3 @@ document.body.style = 'margin: 0px; overflow: hidden'
 document.body.appendChild(mix.render())
 document.body.appendChild(map.render(
   { width: window.innerWidth, height: window.innerHeight }))
-```
-
-# api
-
-``` js
-var zoomTo = require('mixmap-zoom')
-```
-
-## zoomTo(map, opts)
-
-zoom a [mixmap][] map from:
-
-* `opts.viewbox` - destination bounding box
-* `opts.duration` - animation time in milliseconds. default: 1000
-* `opts.easing` - [easing][] function. default: linear
-* `opts.padding` - amount of extra space in zoom levels. default: 0
-
-[mixmap]: https://github.com/substack/mixmap
-[easing]: https://npmjs.com/package/eases
-
-# install
-
-npm install mixmap-zoom
-
-# license
-
-public domain
