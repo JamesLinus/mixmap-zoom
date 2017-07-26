@@ -2,6 +2,10 @@
 
 bounding-box zoom animations for mixmap
 
+[check out this demo](http://substack.neocities.org/mixmap/demos/zoom.html)
+
+![](https://substack.neocities.org/images/mixmap-zoom.jpg)
+
 # example
 
 ``` js

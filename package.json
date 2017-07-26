@@ -1,12 +1,17 @@
 {
+  "name": "mixmap-zoom",
+  "version": "1.0.0",
+  "description": "bounding-box zoom animations for mixmap",
   "dependencies": {
-    "drag-and-drop-files": "0.0.1"
+    "eases": "^1.0.8"
   },
   "devDependencies": {
     "choo": "^6.0.0-3",
-    "eases": "^1.0.8",
+    "drag-and-drop-files": "~0.0.1",
     "envify": "^4.1.0",
-    "regl": "^1.3.0",
-    "sheetify": "^6.0.2"
-  }
+    "mixmap": "^1.3.0",
+    "mixmap-tiles": "^1.1.1",
+    "regl": "^1.3.0"
+  },
+  "license": "public domain"
 }
