@@ -128,7 +128,7 @@ app.route('/', function (state, emit) {
         Drag and drop a geojson file.
       </p>
       <p>
-        Here's a file you can use:
+        Here's a file you can use: 
         <a href="mexico.json" download="mexico.json">mexico.json</a>
       </p>
     </div>
